@@ -37,7 +37,7 @@ public class Main {
         engine.addRoot(world);
         engine.addRoot(new EmojiTicker());
         engine.addRoot(new EmojiHelp(engine, world));
-        engine.addRoot(new EmojiWorldMap(world));
+        engine.addRoot(new EmojiWorldMap(engine, world));
         engine.run();
     }
 

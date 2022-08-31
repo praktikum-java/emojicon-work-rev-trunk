@@ -153,4 +153,8 @@ public class EmojiWorld extends EmojiObject implements EntityResolver, EmojiObje
         }
         return null;
     }
+
+    public EmojiWorldLandscape getLandscape() {
+        return landscape;
+    }
 }

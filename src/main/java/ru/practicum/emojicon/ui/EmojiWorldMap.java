@@ -8,18 +8,20 @@ import com.googlecode.lanterna.input.KeyType;
 import org.jetbrains.annotations.NotNull;
 import ru.practicum.emojicon.engine.*;
 import ru.practicum.emojicon.model.EmojiWorld;
+import ru.practicum.emojicon.model.landscape.EmojiWorldLandscape;
+import ru.practicum.emojicon.model.landscape.WorldLandscapeType;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class EmojiWorldMap implements Drawable, Controller {
 
+    private final Engine engine;
     private final EmojiWorld world;
 
     private boolean visible = false;
 
-    public EmojiWorldMap(EmojiWorld world) {
+    public EmojiWorldMap(Engine engine, EmojiWorld world) {
+        this.engine = engine;
         this.world = world;
     }
 
@@ -73,13 +75,31 @@ public class EmojiWorldMap implements Drawable, Controller {
     private void drawMap(PixelFrame frame) {
         frame.setFillColor(TextColor.ANSI.BLACK);
         frame.fill();
-        int dc = 255 / frame.getBottom();
+        int dc = world.getWidth() / frame.getArea().getWidth();
         for (int x = frame.getLeft(); x <= frame.getRight(); x++){
             for (int y = frame.getTop(); y <= frame.getBottom(); y++) {
                 frame.setPosition(x, y);
-                frame.setColor(new TextColor.RGB(x * dc, y * dc, (int) Math.round(Math.sqrt(x * y) * dc)));
+                TextColor depthColor = getWorldMeanDepthColor(dc * x, dc * y, dc);
+                frame.setColor(depthColor);
                 frame.paint();
             }
         }
+        world.getSelection().stream().findFirst().ifPresent(entityId -> engine.findEntity(entityId).filter(e -> e instanceof Boxed).map(e -> (Boxed) e).ifPresent(entity -> {
+            frame.setPosition(entity.getLeft() / dc, entity.getTop() / dc);
+            frame.setColor(TextColor.ANSI.GREEN_BRIGHT);
+            frame.paint();
+        }));
+    }
+
+    private TextColor getWorldMeanDepthColor(int x0, int y0, int dc) {
+        Map<WorldLandscapeType, Integer> depthMap = new HashMap<>();
+        for(int x = x0; x < x0+dc; x++){
+            for(int y = y0; y < y0+dc; y++){
+                int depth = world.getLandscape().getDepth(x, y);
+                WorldLandscapeType typ = EmojiWorldLandscape.getLandscapeType(depth);
+                depthMap.put(typ, depthMap.getOrDefault(typ, 0) + 1);
+            }
+        }
+        return depthMap.entrySet().stream().sorted(Comparator.<Map.Entry<WorldLandscapeType, Integer>>comparingInt(e -> e.getValue()).reversed()).map(e -> e.getKey().getBaseColor()).findFirst().get();
     }
 }
