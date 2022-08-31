@@ -12,6 +12,7 @@ import ru.practicum.emojicon.model.landscape.EmojiWorldLandscape;
 import ru.practicum.emojicon.model.landscape.WorldLandscapeType;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class EmojiWorldMap implements Drawable, Controller {
 
@@ -100,6 +101,17 @@ public class EmojiWorldMap implements Drawable, Controller {
                 depthMap.put(typ, depthMap.getOrDefault(typ, 0) + 1);
             }
         }
-        return depthMap.entrySet().stream().sorted(Comparator.<Map.Entry<WorldLandscapeType, Integer>>comparingInt(e -> e.getValue()).reversed()).map(e -> e.getKey().getBaseColor()).findFirst().get();
+        List<Map.Entry<WorldLandscapeType, Integer>> depthStats = depthMap.entrySet().stream().sorted(Comparator.<Map.Entry<WorldLandscapeType, Integer>>comparingInt(e -> e.getValue()).reversed()).collect(Collectors.toList());
+        WorldLandscapeType max = depthStats.get(0).getKey();
+        WorldLandscapeType second = depthStats.size() > 1 ? depthStats.get(1).getKey() : null;
+        TextColor meanColor = max.getBaseColor();
+        if(second != null && max == WorldLandscapeType.EARTH) {
+            if(second == WorldLandscapeType.MOUNTAIN){
+                meanColor = new TextColor.RGB(0, meanColor.getGreen() + 10, 0);
+            } else if (second == WorldLandscapeType.WATER){
+                meanColor = new TextColor.RGB(0, meanColor.getGreen() - 10, 0);
+            }
+        }
+        return meanColor;
     }
 }
