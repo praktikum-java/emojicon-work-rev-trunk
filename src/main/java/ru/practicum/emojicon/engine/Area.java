@@ -6,10 +6,10 @@ import java.util.List;
 
 public class Area implements Boxed {
 
-    private int left;
-    private int right;
-    private int top;
-    private int bottom;
+    private final int left;
+    private final int right;
+    private final int top;
+    private final int bottom;
 
     public Area(int left, int top, int right, int bottom) {
         this.left = left;
@@ -46,10 +46,15 @@ public class Area implements Boxed {
         return bottom;
     }
 
-    public void move(int dx, int dy) {
-        left = left + dx;
-        right = right + dx;
-        top = top + dy;
-        bottom = bottom + dy;
+    public Area move(int dx, int dy) {
+        return new Area(left + dx, top + dy, right + dx,  bottom + dy);
+    }
+
+    public int getWidth(){
+        return right - left + 1;
+    }
+
+    public int getHeight(){
+        return bottom - top + 1;
     }
 }

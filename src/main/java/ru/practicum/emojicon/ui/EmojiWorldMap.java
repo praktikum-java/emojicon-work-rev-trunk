@@ -1,6 +1,7 @@
 package ru.practicum.emojicon.ui;
 
 import com.googlecode.lanterna.TerminalSize;
+import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
@@ -53,7 +54,7 @@ public class EmojiWorldMap implements Drawable, Controller {
 
         Area area = new Area(size.getColumns() / 2 - mapWidth / 2, size.getRows() / 2 - mapHeight / 2,
                 size.getColumns() / 2 + mapWidth / 2, size.getRows() / 2 + mapHeight / 2);
-        area.move(0, -1);
+        area = area.move(0, -1);
         drawMap(new PixelFrame(frame, area.getLeft() + 1, area.getTop() + 1, area.getRight() - 1, area.getBottom() - 1));
         //draw box frame
         graphics.drawLine(area.getLeft(), area.getTop(), area.getRight(), area.getTop(), '─');
@@ -70,6 +71,15 @@ public class EmojiWorldMap implements Drawable, Controller {
     }
 
     private void drawMap(PixelFrame frame) {
-
+        frame.setFillColor(TextColor.ANSI.BLACK);
+        frame.fill();
+        int dc = 255 / frame.getBottom();
+        for (int x = frame.getLeft(); x <= frame.getRight(); x++){
+            for (int y = frame.getTop(); y <= frame.getBottom(); y++) {
+                frame.setPosition(x, y);
+                frame.setColor(new TextColor.RGB(x * dc, y * dc, (int) Math.round(Math.sqrt(x * y) * dc)));
+                frame.paint();
+            }
+        }
     }
 }
